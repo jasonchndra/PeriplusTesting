@@ -1,0 +1,90 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import java.time.Duration;
+
+public class PeriplusCartTest {
+
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    @BeforeMethod
+    public void setUp() {
+        // Ensure you have ChromeDriver installed and mapped in your system PATH
+        // Or use WebDriverManager: WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    @Test
+    public void testAddProductToCart() {
+        // 1. Navigate to Periplus
+        driver.get("https://www.periplus.com/");
+
+        // 2. Enter login and password
+        // Assuming there's a login link/button to click first
+        WebElement loginLink = wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Login")));
+        loginLink.click();
+
+        WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+        emailField.sendKeys("your-test-account@email.com"); // Replace with test account
+
+        WebElement passwordField = driver.findElement(By.id("password"));
+        passwordField.sendKeys("YourTestPassword123"); // Replace with test password
+
+        WebElement submitLogin = driver.findElement(By.cssSelector("button[type='submit']"));
+        submitLogin.click();
+
+        // Wait for login to complete by waiting for the search bar to be usable
+        WebElement searchBox = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filter_name")));
+
+        // 3. Find one product
+        searchBox.sendKeys("System Design");
+        WebElement searchButton = driver.findElement(By.cssSelector(".button-search"));
+        searchButton.click();
+
+        // Click the first product in the search results
+        WebElement firstProduct = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector(".product-list .item:first-child a")
+        ));
+        firstProduct.click();
+
+        // 4. Add one product to the cart
+        WebElement addToCartBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("button-cart")));
+        addToCartBtn.click();
+
+        // 5. Verify that the product has been successfully added to the cart
+        // Waiting for the success notification/alert to appear
+        WebElement successAlert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".alert-success")
+        ));
+        Assert.assertTrue(successAlert.getText().contains("Success: You have added"), 
+                "Success message not found.");
+
+        // Additional verification: Check the cart counter text
+        WebElement cartTotal = driver.findElement(By.id("cart-total"));
+        Assert.assertTrue(cartTotal.getText().contains("1 item(s)"), 
+                "Cart total did not update correctly.");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            // Close browser and end WebDriver session
+            driver.quit();
+        }
+    }
+}
+
+// I'm very sorry my coding technical wasn't that strong
+// This code is mostly written by Gemini (Vibe Coding)
+// I only prompt and made some adjustments to fit the test case and my needs
