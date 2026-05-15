@@ -1,4 +1,4 @@
-# OnlineStoreTesting
+# PeriplusTesting
 # Periplus Online Shop Automated Testing
 
 # Scenario option B
